@@ -2,9 +2,7 @@ package com.example.eventfinder.navigation
 
 import androidx.compose.foundation.background
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Face
-import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -14,9 +12,9 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 
 sealed class Screen(val route: String, val name:String, val icon: ImageVector) {
-    object navEvents : Screen("eventList", "Events", Icons.Default.Home)
-    object  navMap : Screen("map", "Map", Icons.Default.Add)
-    object navFavorites : Screen("myEventList", "My Favorites", Icons.Default.Face)
+    object navEvents : Screen("eventList", "Events", Icons.Default.Share)
+    object navMap : Screen("map", "Map", Icons.Default.Place)
+    object navFavorites : Screen("myEventList", "My Favorites", Icons.Default.Favorite)
 }
 
 

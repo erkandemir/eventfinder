@@ -28,7 +28,7 @@ class EventListComposable(private val isGrid : Boolean,
                           private val navController : NavController
 ) {
     @Composable
-    fun EventList(events : MutableList<EventModel>)
+    fun ScreenEventList(events : MutableList<EventModel>)
     {
         if(isGrid)
             EventGrid(events = events)

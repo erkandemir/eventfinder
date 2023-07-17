@@ -18,6 +18,10 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
+
+        Properties properties = new Properties()
+        properties.load(project.rootProject.file('local.properties').newDataInputStream())
+        manifestPlaceholders = [MAPS_API_KEY: "${properties.getProperty('MAPS_API_KEY')}"]
     }
 
     buildTypes {
@@ -69,4 +73,8 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.4.0")
     //Navigation
     implementation("androidx.navigation:navigation-compose:$nav_version")
+    //Google Map
+    implementation 'com.google.maps.android:maps-compose:2.11.2'
+    implementation 'com.google.android.gms:play-services-maps:18.0.2'
+    implementation 'com.google.android.libraries.places:places:3.0.0'
 }
