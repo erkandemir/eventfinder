@@ -28,10 +28,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.eventfinder.Model.DummyData
 import com.example.eventfinder.Model.EventModel
-import com.example.eventfinder.composable.EventDetailComposable
-import com.example.eventfinder.composable.EventListComposable
-import com.example.eventfinder.composable.FavoritesComposable
-import com.example.eventfinder.composable.MapComposable
+import com.example.eventfinder.composable.*
 import com.example.eventfinder.navigation.BottomNavigationComposable
 import com.example.eventfinder.navigation.Screen
 import com.example.eventfinder.ui.theme.EventFinderTheme
@@ -56,7 +53,6 @@ class MainActivity : ComponentActivity() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(applicationContext)
 
         setContent {
-
             val launcherMultiplePermissions = rememberLauncherForActivityResult(
                 ActivityResultContracts.RequestMultiplePermissions()
             ) { permissionsMap ->
@@ -109,8 +105,7 @@ class MainActivity : ComponentActivity() {
         var navController: NavHostController = rememberNavController()
         Scaffold(
             topBar = {
-                Row() {
-                    Text("Event Finder") }
+
             } ,
             bottomBar = {
                 BottomNavigationComposable(navController = navController)

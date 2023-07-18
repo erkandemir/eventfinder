@@ -30,10 +30,13 @@ class EventListComposable(private val isGrid : Boolean,
     @Composable
     fun ScreenEventList(events : MutableList<EventModel>)
     {
-        if(isGrid)
-            EventGrid(events = events)
-        else
-            EventColumn(events = events)
+        Column() {
+            FilterBarComposable().FilterBar()
+            if(isGrid)
+                EventGrid(events = events)
+            else
+                EventColumn(events = events)
+        }
     }
 
     @OptIn(ExperimentalFoundationApi::class)

@@ -1,6 +1,6 @@
 package com.example.eventfinder.composable
 
-import android.graphics.Color
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import com.example.eventfinder.Model.DummyData
 
@@ -23,11 +24,15 @@ class EventDetailComposable(private val navController : NavController){
     fun EventDetailScreen(eventId: Int?)
     {
         val event = DummyData().GetEventDetail(eventId)
-        Column(modifier = Modifier.fillMaxHeight())
+        Column(modifier = Modifier
+            .fillMaxHeight()
+            .fillMaxWidth(),
+            verticalArrangement = Arrangement.SpaceBetween
+        )
         {
             Row(
                 modifier = Modifier
-                    .fillMaxHeight(0.4f)
+                    .fillMaxHeight(0.3f)
                     .fillMaxWidth()
             ) {
                 AsyncImage(
@@ -38,9 +43,16 @@ class EventDetailComposable(private val navController : NavController){
                 )
             }
 
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(androidx.compose.ui.graphics.Color.LightGray)
+                    .height(1.dp)
+            )
+
             Row(modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.6f)
+                .fillMaxHeight(0.5f)
                 .background(color = MaterialTheme.colorScheme.onPrimary))
             {
                 Column() {
@@ -50,7 +62,18 @@ class EventDetailComposable(private val navController : NavController){
                 }
 
             }
-            Row(modifier = Modifier.align(alignment = Alignment.CenterHorizontally))
+
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(androidx.compose.ui.graphics.Color.LightGray)
+                    .height(1.dp)
+            )
+            
+            Row(modifier = Modifier
+                .align(alignment = Alignment.CenterHorizontally)
+                .fillMaxHeight(0.2f)
+            )
             {
                 Button(onClick = { /*TODO*/ },
                 modifier = Modifier.background(MaterialTheme.colorScheme.onSecondary)) {
