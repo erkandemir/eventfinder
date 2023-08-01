@@ -1,4 +1,4 @@
-package com.example.eventfinder.Model
+package com.example.eventfinder.model
 
 import java.util.*
 import kotlin.collections.ArrayList

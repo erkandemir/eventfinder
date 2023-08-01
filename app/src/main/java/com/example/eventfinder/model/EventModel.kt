@@ -1,6 +1,5 @@
-package com.example.eventfinder.Model
+package com.example.eventfinder.model
 
-import android.net.Uri
 import java.util.Date
 
 data class EventModel(
@@ -8,13 +7,12 @@ data class EventModel(
     val categoryId : Int,
     val countyId : Int,
     val title : String,
-    val date : Date,
-    val placeName : String,
-    val locationX : Double,
-    val locationY : Double,
+    val event_date : Date,
+    val place_name : String,
+    val location_x : Double,
+    val location_y : Double,
     val imageUrl : String,
     val description : String,
     val ticketPrice : Double,
     val address : String
 )
-

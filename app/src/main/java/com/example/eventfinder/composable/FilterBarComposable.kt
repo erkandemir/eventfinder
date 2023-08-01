@@ -1,20 +1,24 @@
 package com.example.eventfinder.composable
 
 import android.annotation.SuppressLint
-import android.widget.DatePicker
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.eventfinder.model.EventCategoryModel
+import com.example.eventfinder.viewmodel.MainViewModel
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.*
 
 
-class FilterBarComposable {
+
+class FilterBarComposable(private val viewModel: MainViewModel) {
     @Composable
     fun FilterBar()
     {
@@ -37,26 +41,26 @@ class FilterBarComposable {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun CategorySelection() {
-        val options = listOf<String>("All Categories", "Education", "Drink", "Cinema", "Dance", "Games")
+
         // state of the menu
         var expanded by remember {
             mutableStateOf(false)
         }
 
-        // remember the selected item
-        var selectedItem by remember {
-            mutableStateOf(options[0])
+        val eventCategoryList = viewModel.eventCategoryResponse.value
+        var selectedItemValue by remember {
+            mutableStateOf(viewModel.selectedEventCategoryModel.value!!.name)
         }
 
         //Dropdown
         Row( modifier = Modifier.fillMaxWidth()) {
-
             ExposedDropdownMenuBox(
                 expanded = expanded,
                 onExpandedChange = { expanded = !expanded }) {
                 TextField(
-                    value = selectedItem,
-                    onValueChange = {},
+                    value = selectedItemValue,
+                    onValueChange = {
+                    },
                     readOnly = true,
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                     colors = ExposedDropdownMenuDefaults.textFieldColors(),
@@ -66,10 +70,12 @@ class FilterBarComposable {
                     expanded = expanded,
                     onDismissRequest = { expanded = false })
                 {
-                    options.forEach { item ->
-                        DropdownMenuItem(text = { Text(item) },
+                    eventCategoryList.forEach { item ->
+                        DropdownMenuItem(text = { Text(item.name) },
                             onClick = {
-                                selectedItem = item
+                                selectedItemValue = item.name
+                                viewModel.selectedEventCategoryModel.value = item
+                                viewModel.getEvents()
                                 expanded = false
                             })
                     }
@@ -93,9 +99,7 @@ class FilterBarComposable {
         TextButton(
             onClick = { openDatePickerDialog = !openDatePickerDialog })
         {
-            val simpleDateFormat = SimpleDateFormat("dd/MM/yyyy")
-            val dateString = simpleDateFormat.format(selectedDate)
-            Text(String.format("Date: %s", dateString))
+            Text(String.format("Date: %s", viewModel.selectedDate.value))
         }
 
         if(openDatePickerDialog) {
@@ -117,6 +121,10 @@ class FilterBarComposable {
                         onClick = {
                             selectedDate = datePickerState.selectedDateMillis
                             openDatePickerDialog = false
+                            val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
+                            val dateString = simpleDateFormat.format(selectedDate)
+                            viewModel.selectedDate.value = dateString
+                            viewModel.getEvents()
 
                         }, enabled = confirmEnabled.value
                     ) {
@@ -140,8 +148,9 @@ class FilterBarComposable {
             }
         }
    }
+
 }
 
-private fun LocalDateTime.toMillis(): Long? {
+fun LocalDateTime.toMillis(): Long? {
     return this.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
 }

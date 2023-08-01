@@ -1,33 +1,29 @@
 package com.example.eventfinder.composable
 
-import android.content.Context
 import android.location.Location
-import android.location.LocationManager
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.core.content.ContextCompat.getSystemService
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.eventfinder.Model.EventModel
-import com.google.android.gms.maps.model.BitmapDescriptor
+import com.example.eventfinder.model.EventModel
+import com.example.eventfinder.viewmodel.MainViewModel
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
 import com.google.maps.android.compose.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 
-class MapComposable(private val navController: NavController) {
+class MapComposable(private val navController: NavController, private val viewModel: MainViewModel) {
 
     @Composable
-    fun MapScreen(currentLocation:Location?, eventList: MutableList<EventModel>)
+    fun MapScreen(currentLocation:Location?)
     {
         val devicePosition : LatLng = LatLng(currentLocation!!.latitude,
             currentLocation!!.longitude)
@@ -47,23 +43,16 @@ class MapComposable(private val navController: NavController) {
             cameraPositionState = cameraPositionState,
             uiSettings = mapUiSettings
         ) {
-            Marker(
-                state = MarkerState(position = devicePosition),
-                title = "You",
-                snippet = "You are here"
-            )
-
-            eventList.forEach { event->
+            viewModel.eventListResponse.value?.forEach { event->
                 Marker(
-                    state = MarkerState(LatLng(event.locationX, event.locationY)),
+                    state = MarkerState(LatLng(event.location_x, event.location_y)),
                     title = event.title,
-                    snippet = event.placeName,
+                    snippet = event.place_name,
                     onInfoWindowClick = {
                         GlobalScope.launch(Dispatchers.Main) {
                             navController.navigate("eventDetail/" + event.id)
                         }
                     }
-                    // { navController.navigate("eventDetail/" + event.id) }
                 )
             }
 

@@ -1,6 +1,5 @@
 package com.example.eventfinder.composable
 
-import android.service.autofill.OnClickAction
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -9,34 +8,59 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.runtime.Composable
-import com.example.eventfinder.Model.EventModel
+import com.example.eventfinder.model.EventModel
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.modifier.modifierLocalConsumer
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.example.eventfinder.Model.DummyData
+import com.example.eventfinder.viewmodel.MainViewModel
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 class EventListComposable(private val isGrid : Boolean,
-                          private val navController : NavController
+                          private val navController : NavController,
+                          private val viewModel: MainViewModel
 ) {
+
     @Composable
-    fun ScreenEventList(events : MutableList<EventModel>)
+    fun ScreenEventList()
     {
-        Column() {
-            FilterBarComposable().FilterBar()
-            if(isGrid)
-                EventGrid(events = events)
-            else
-                EventColumn(events = events)
+        var refreshing by remember { mutableStateOf(false) }
+        LaunchedEffect(refreshing) {
+            if (refreshing) {
+                delay(3000)
+                refreshing = false
+            }
         }
+
+        SwipeRefresh(
+            state = rememberSwipeRefreshState(isRefreshing = refreshing),
+            onRefresh = { refreshing = true },
+        ) {
+
+            Box() {
+                Column() {
+                    FilterBarComposable(viewModel).FilterBar()
+                    val events = viewModel.eventListResponse.value
+                    if(isGrid)
+                        EventGrid(events = events)
+                    else
+                        EventColumn(events = events)
+                }
+            }
+        }
+
+
+
+
     }
 
     @OptIn(ExperimentalFoundationApi::class)
@@ -71,12 +95,10 @@ class EventListComposable(private val isGrid : Boolean,
                             modifier = Modifier.fillMaxHeight()
                         ) {
                             Text(event.title)
-                            Text(event.description)
+                            Text(event.place_name)
                         }
                     }
-
                 }
-
         }
     }
 
@@ -92,11 +114,23 @@ class EventListComposable(private val isGrid : Boolean,
 
     @Composable
     private fun EventGrid(events: MutableList<EventModel>) {
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2)
-        ) {
-            items(events) { event ->
-                EventItem(event)
+        if(events.size == 0) {
+            Box(modifier = Modifier.height(200.dp).fillMaxWidth()){
+                Column{
+                    Text(
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                            .padding(top = 90.dp),
+                        text = "No event found.."
+                    )
+                }
+            }
+        }else {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2)
+            ) {
+                items(events) { event ->
+                    EventItem(event)
+                }
             }
         }
     }

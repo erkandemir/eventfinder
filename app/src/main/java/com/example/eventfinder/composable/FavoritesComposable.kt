@@ -1,19 +1,19 @@
 package com.example.eventfinder.composable
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
-import com.example.eventfinder.Model.DummyData
-import com.example.eventfinder.Model.EventModel
+import com.example.eventfinder.model.DummyData
+import com.example.eventfinder.model.EventCategoryModel
+import com.example.eventfinder.model.EventModel
+import com.example.eventfinder.viewmodel.MainViewModel
 
-class FavoritesComposable(private val navController: NavController) {
+class FavoritesComposable(private val navController: NavController, private val viewModel: MainViewModel) {
     @Composable
-    fun FavoritesScreen()
+    fun FavoritesScreen(eventCategories : MutableList<EventCategoryModel>)
     {
         var eventList : MutableList<EventModel>   = DummyData().GetDummyEventList();
-        EventListComposable(false, navController)
-            .ScreenEventList(events = eventList)
+        EventListComposable(false, navController, viewModel)
+            .ScreenEventList()
     }
 
 }

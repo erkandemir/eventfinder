@@ -4,26 +4,27 @@ package com.example.eventfinder.composable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import androidx.compose.material3.Text
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.eventfinder.Model.DummyData
+import coil.compose.AsyncImage
+import com.example.eventfinder.viewmodel.MainViewModel
+import java.text.DateFormat
+import java.text.SimpleDateFormat
 
-import com.example.eventfinder.Model.EventModel
-
-class EventDetailComposable(private val navController : NavController){
+class EventDetailComposable(private val navController : NavController, private val viewModel : MainViewModel){
     @Composable
     fun EventDetailScreen(eventId: Int?)
     {
-        val event = DummyData().GetEventDetail(eventId)
+        val event = viewModel.eventListResponse.value.firstOrNull() { it.id == eventId}
+        //viewModel.getFavorites(event!!.id)
+
         Column(modifier = Modifier
             .fillMaxHeight()
             .fillMaxWidth(),
@@ -55,10 +56,21 @@ class EventDetailComposable(private val navController : NavController){
                 .fillMaxHeight(0.5f)
                 .background(color = MaterialTheme.colorScheme.onPrimary))
             {
-                Column() {
+                Column(verticalArrangement = Arrangement.SpaceBetween) {
+
                     Text("Title: " + event?.title)
-                    Text("Date: " + event?.date)
+                    Text("Date: " + event?.event_date.toString())
+                    Spacer(modifier = Modifier
+                        .fillMaxWidth()
+                        .height(15.dp))
                     Text("Description: " + event?.description)
+                    Spacer(modifier = Modifier
+                        .fillMaxWidth()
+                        .height(20.dp))
+                    Text(
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                        text = "Ticket Price: €" + event?.ticketPrice
+                    )
                 }
 
             }
@@ -75,14 +87,28 @@ class EventDetailComposable(private val navController : NavController){
                 .fillMaxHeight(0.2f)
             )
             {
+                //Atandence button
                 Button(onClick = { /*TODO*/ },
                 modifier = Modifier.background(MaterialTheme.colorScheme.onSecondary)) {
                     Text(text = "Attend to Event")
                 }
 
-                Button(onClick = { /*TODO*/ },
-                    modifier = Modifier.background(MaterialTheme.colorScheme.onSecondary)) {
-                    Text(text = "Add To Fav")
+                //Favorite button
+                Button(
+                    onClick = {
+                        viewModel.setFavorite(event!!.id)
+                        viewModel.inFavorite.value = true
+                    },
+                    modifier = Modifier.background(MaterialTheme.colorScheme.onSecondary),
+                    enabled = !viewModel.inFavorite.value
+                )
+                {
+                    if(!viewModel.inFavorite.value) {
+                        Text(text = "Add To Fav")
+                    }
+                    else {
+                        Text(text = "In favorites")
+                    }
                 }
             }
 
