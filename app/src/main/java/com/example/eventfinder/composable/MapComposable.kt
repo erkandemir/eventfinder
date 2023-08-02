@@ -43,7 +43,7 @@ class MapComposable(private val navController: NavController, private val viewMo
             cameraPositionState = cameraPositionState,
             uiSettings = mapUiSettings
         ) {
-            viewModel.eventListResponse.value?.forEach { event->
+            viewModel.eventListState.value?.forEach { event->
                 Marker(
                     state = MarkerState(LatLng(event.location_x, event.location_y)),
                     title = event.title,

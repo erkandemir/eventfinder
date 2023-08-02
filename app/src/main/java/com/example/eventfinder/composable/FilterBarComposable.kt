@@ -2,12 +2,16 @@ package com.example.eventfinder.composable
 
 import android.annotation.SuppressLint
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.eventfinder.model.EventCategoryModel
 import com.example.eventfinder.viewmodel.MainViewModel
@@ -26,17 +30,28 @@ class FilterBarComposable(private val viewModel: MainViewModel) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(2.dp)
+                .background(color = MaterialTheme.colorScheme.background)
         )
         {
-            Row(modifier = Modifier.weight(1f)) {
+            Row(modifier = Modifier.weight(0.4f)) {
                 CategorySelection()
             }
-            Row(modifier = Modifier.weight(1f)) {
+            Row(modifier = Modifier.weight(0.4f)) {
                 DateSelection()
             }
+            Row(modifier = Modifier.weight(0.2f)) {
+                Button(onClick = {
+                    viewModel.resetFilter()
 
-
+                }) {
+                    Text(text = "Reset", fontSize = 10.sp)
+                }
+            }
         }
+        Spacer(modifier = Modifier
+            .background(color = MaterialTheme.colorScheme.primary)
+            .height(2.dp)
+            .fillMaxWidth())
     }
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
@@ -47,28 +62,40 @@ class FilterBarComposable(private val viewModel: MainViewModel) {
             mutableStateOf(false)
         }
 
-        val eventCategoryList = viewModel.eventCategoryResponse.value
+        val eventCategoryList = viewModel.eventCategoryListState.value
         var selectedItemValue by remember {
             mutableStateOf(viewModel.selectedEventCategoryModel.value!!.name)
         }
 
         //Dropdown
-        Row( modifier = Modifier.fillMaxWidth()) {
+        Row( modifier = Modifier
+            .fillMaxWidth()
+            .background(color = MaterialTheme.colorScheme.secondary)) {
             ExposedDropdownMenuBox(
                 expanded = expanded,
-                onExpandedChange = { expanded = !expanded }) {
+                onExpandedChange = { expanded = !expanded },
+                modifier = Modifier.background(color = MaterialTheme.colorScheme.secondary)
+            ) {
                 TextField(
-                    value = selectedItemValue,
+                    value = viewModel.selectedEventCategoryModel.value!!.name,
                     onValueChange = {
                     },
                     readOnly = true,
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                    colors = ExposedDropdownMenuDefaults.textFieldColors(),
-                    modifier = Modifier.menuAnchor()
+                    textStyle = TextStyle.Default.copy(fontSize = 12.sp),
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = MaterialTheme.colorScheme.background,
+                        focusedContainerColor = MaterialTheme.colorScheme.background,
+                        focusedTextColor = MaterialTheme.colorScheme.primary,
+                        unfocusedTextColor = MaterialTheme.colorScheme.primary),
+                    modifier = Modifier
+                        .menuAnchor()
+
                 )
                 ExposedDropdownMenu(
                     expanded = expanded,
-                    onDismissRequest = { expanded = false })
+                    onDismissRequest = { expanded = false }
+                )
                 {
                     eventCategoryList.forEach { item ->
                         DropdownMenuItem(text = { Text(item.name) },
@@ -97,7 +124,8 @@ class FilterBarComposable(private val viewModel: MainViewModel) {
 
         var openDatePickerDialog by remember { mutableStateOf(false) }
         TextButton(
-            onClick = { openDatePickerDialog = !openDatePickerDialog })
+            onClick = { openDatePickerDialog = !openDatePickerDialog },
+        )
         {
             Text(String.format("Date: %s", viewModel.selectedDate.value))
         }
@@ -124,6 +152,7 @@ class FilterBarComposable(private val viewModel: MainViewModel) {
                             val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
                             val dateString = simpleDateFormat.format(selectedDate)
                             viewModel.selectedDate.value = dateString
+                            viewModel.dateSelected.value = true
                             viewModel.getEvents()
 
                         }, enabled = confirmEnabled.value

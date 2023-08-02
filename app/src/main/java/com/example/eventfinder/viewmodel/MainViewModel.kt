@@ -1,18 +1,18 @@
 package com.example.eventfinder.viewmodel
 
+import android.annotation.SuppressLint
 import android.provider.Settings
 import android.widget.Toast
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.eventfinder.model.EventCategoryModel
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.lifecycle.*
 import androidx.lifecycle.Observer
 import com.example.eventfinder.model.EventFavoriteModel
 import com.example.eventfinder.model.EventModel
 import com.example.eventfinder.repository.EventRepository
 import kotlinx.coroutines.launch
+import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.util.*
@@ -28,19 +28,22 @@ class MainViewModel() : ViewModel() {
     var selectedEventCategoryModel : MutableLiveData<EventCategoryModel> = MutableLiveData(
         EventCategoryModel(0, "All Categories", "")
     )
-
     //Set eventlist date state today
+    var dateSelected : MutableLiveData<Boolean> = MutableLiveData(false)
     var selectedDate : MutableLiveData<String> = MutableLiveData(LocalDateTime.now().toLocalDate().toString())
-    //event category state
-    var eventCategoryResponse : MutableState<MutableList<EventCategoryModel>> = mutableStateOf(mutableListOf())
-    //event list state
-    var eventListResponse : MutableState<MutableList<EventModel>> = mutableStateOf(mutableListOf())
-    //favorite list
-    var favoriteListResponse : MutableState<MutableList<EventFavoriteModel>> = mutableStateOf(mutableListOf())
-    // in favorite
-    var inFavorite : MutableState<Boolean> = mutableStateOf(false)
     //deviceId
     var deviceId : String = ""
+
+
+    //event category state
+    var eventCategoryListState : MutableState<MutableList<EventCategoryModel>> = mutableStateOf(mutableListOf())
+    //event list state
+    var eventListState : MutableState<MutableList<EventModel>?> = mutableStateOf(mutableListOf())
+    //favoriteEventList
+    var favoriteEventListState : MutableState<MutableList<EventModel>?> = mutableStateOf(mutableListOf())
+    //
+    var favButtonState : MutableState<Boolean> = mutableStateOf(false)
+
 
 
 
@@ -49,39 +52,91 @@ class MainViewModel() : ViewModel() {
     {
         viewModelScope.launch {
             val response = EventRepository.getEventCategories()
-            eventCategoryResponse.value = response.body()!!
-            eventCategoryResponse.value.add(0, EventCategoryModel(0, "All Categories", "-"))
+            eventCategoryListState.value = response.body()!!
+            eventCategoryListState.value.add(0, EventCategoryModel(0, "All Categories", "-"))
             getEvents()
         }
 
     }
 
     //fetch event by category
-    fun getEvents()
+    fun getEvents(getAll : Boolean = false)
     {
         viewModelScope.launch {
-            val response = EventRepository.getEvents(selectedEventCategoryModel.value!!.id, selectedDate.value!!)
-            eventListResponse.value = response.body()!!
+            val response = EventRepository.getEvents(selectedEventCategoryModel.value!!.id,
+                    selectedDate.value!!, dateSelected.value!!)
+
+            if (response != null) {
+                if(response.isSuccessful)
+                    eventListState.value = response.body()!!
+            }
         }
     }
+
 
     //set to favorites
     fun setFavorite(eventId:Int)
     {
-        viewModelScope.launch {
-           EventRepository.setFavorite(deviceId, eventId)
+        val event = eventListState.value!!.firstOrNull() { it.id == eventId}
+        if(event != null) {
+            if(event!!.fav_data == null) {
+                viewModelScope.launch {
+                    var response = EventRepository.setFavorite(deviceId, eventId)
+                    if(response.isSuccessful) {
+                        event.fav_data = EventFavoriteModel(response.body()!!.id, deviceId, event.id)
+                        favButtonState.value = true
+                    }
+
+                }
+            }
+            else {
+                viewModelScope.launch {
+                    EventRepository.deleteFavorite(event.fav_data!!.id)
+                    event.fav_data = null
+                    favButtonState.value = false
+                }
+            }
         }
+        else {
+            //event not in eventList, event delete from favorite
+            viewModelScope.launch {
+                val event = favoriteEventListState.value!!.firstOrNull(){it.id == eventId}
+                if(event!!.fav_data != null) {
+                    EventRepository.deleteFavorite(event.fav_data!!.id)
+                    favButtonState.value = false
+                }
+            }
+        }
+
     }
 
-    //get favorites
-    fun getFavorites(eventId: Int?)
+
+    //reset filter
+    fun resetFilter()
     {
-        inFavorite.value = false
+        selectedEventCategoryModel = MutableLiveData(
+            EventCategoryModel(0, "All Categories", "")
+        )
+        dateSelected = MutableLiveData(false)
+        selectedDate = MutableLiveData(LocalDateTime.now().toLocalDate().toString())
+        getEvents()
+    }
+
+
+    fun changeFavButton(value: Boolean)
+    {
+        favButtonState.value = value
+    }
+
+    fun getFavoriteEventList()
+    {
         viewModelScope.launch {
-            val response = EventRepository.getFavorite(deviceId, eventId)
-            favoriteListResponse.value = response.body()!!
-            if(eventId != null && response.body() != null && response.body()!!.size > 0)
-                inFavorite.value = favoriteListResponse.value[0].eventId == eventId
+            val response : Response<MutableList<EventModel>>? = EventRepository.getAllEvents()
+            if (response != null) {
+                if(response.isSuccessful)
+                    favoriteEventListState.value = response.body()!!
+            }
+
         }
     }
 

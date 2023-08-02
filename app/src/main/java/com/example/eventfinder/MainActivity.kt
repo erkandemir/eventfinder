@@ -11,11 +11,13 @@ import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
@@ -103,7 +105,16 @@ class MainActivity : ComponentActivity() {
         var navController: NavHostController = rememberNavController()
         Scaffold(
             topBar = {
+                Row() {
+                    Column{
+                        Text("Event Finder")
+                        Spacer(modifier = Modifier
+                            .background(color = MaterialTheme.colorScheme.primary)
+                            .height(2.dp)
+                            .fillMaxWidth())
+                    }
 
+                }
             } ,
             bottomBar = {
                 BottomNavigationComposable(navController = navController)
@@ -124,14 +135,14 @@ class MainActivity : ComponentActivity() {
     {
         viewModel.deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID)
         NavHost(navController = navController, startDestination = Screen.navEvents.route) {
-            composable(Screen.navEvents.route) { EventListComposable(true, navController, viewModel)
+            composable(Screen.navEvents.route) { EventListComposable(false, navController, viewModel)
                         .ScreenEventList()}
             composable("eventDetail/{eventId}",arguments = listOf(navArgument("eventId") { type = NavType.IntType })
             ) { backStackEntry ->
                 EventDetailComposable(navController,viewModel).EventDetailScreen(backStackEntry.arguments?.getInt("eventId"))
             }
             composable(Screen.navMap.route) { MapComposable(navController, viewModel).MapScreen(currentLocation) }
-            //composable(Screen.navFavorites.route) { FavoritesComposable(navController).FavoritesScreen(eventCategories)}
+            composable(Screen.navFavorites.route) { FavoritesComposable(navController, viewModel).FavoritesScreen()}
         }
     }
 

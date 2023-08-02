@@ -7,10 +7,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.Observer
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
@@ -20,10 +23,14 @@ import java.text.SimpleDateFormat
 
 class EventDetailComposable(private val navController : NavController, private val viewModel : MainViewModel){
     @Composable
-    fun EventDetailScreen(eventId: Int?)
+    fun EventDetailScreen(eventId: Int?, fromFav:Boolean = false)
     {
-        val event = viewModel.eventListResponse.value.firstOrNull() { it.id == eventId}
-        //viewModel.getFavorites(event!!.id)
+        val event = if(viewModel.favoriteEventListState.value!!.size > 0)
+            viewModel.favoriteEventListState.value!!.firstOrNull() { it.id == eventId}
+        else
+            viewModel.eventListState.value!!.firstOrNull() { it.id == eventId}
+
+        viewModel.changeFavButton(event!!.fav_data != null)
 
         Column(modifier = Modifier
             .fillMaxHeight()
@@ -97,17 +104,17 @@ class EventDetailComposable(private val navController : NavController, private v
                 Button(
                     onClick = {
                         viewModel.setFavorite(event!!.id)
-                        viewModel.inFavorite.value = true
                     },
                     modifier = Modifier.background(MaterialTheme.colorScheme.onSecondary),
-                    enabled = !viewModel.inFavorite.value
+                    enabled = true
                 )
                 {
-                    if(!viewModel.inFavorite.value) {
-                        Text(text = "Add To Fav")
+                    if(!viewModel.favButtonState.value)
+                    {
+                        Text(text = "Add To Favorites")
                     }
                     else {
-                        Text(text = "In favorites")
+                        Text(text = "Delete From Favorites")
                     }
                 }
             }

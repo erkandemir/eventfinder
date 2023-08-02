@@ -2,6 +2,7 @@ package com.example.eventfinder.composable
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,6 +15,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -25,7 +27,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
-class EventListComposable(private val isGrid : Boolean,
+class EventListComposable(private val favoriteMode : Boolean,
                           private val navController : NavController,
                           private val viewModel: MainViewModel
 ) {
@@ -47,19 +49,15 @@ class EventListComposable(private val isGrid : Boolean,
         ) {
 
             Box() {
-                Column() {
-                    FilterBarComposable(viewModel).FilterBar()
-                    val events = viewModel.eventListResponse.value
-                    if(isGrid)
-                        EventGrid(events = events)
-                    else
-                        EventColumn(events = events)
+                Column {
+                    if(favoriteMode)
+                        FavoriteList()
+                    else {
+                        EventList()
+                    }
                 }
             }
         }
-
-
-
 
     }
 
@@ -74,7 +72,7 @@ class EventListComposable(private val isGrid : Boolean,
                 .padding(10.dp)
                 .height(250.dp)
                 .combinedClickable(
-                    onClick = { navController.navigate("eventDetail/" + event.id)}
+                    onClick = { navController.navigate("eventDetail/" + event.id) }
                 ),
 
         ) {
@@ -103,34 +101,53 @@ class EventListComposable(private val isGrid : Boolean,
     }
 
     @Composable
-    private fun EventColumn(events : MutableList<EventModel>)
+    private fun FavoriteList()
     {
-        LazyColumn {
-            items(events) { event ->
-                EventItem(event = event)
+        val favEvents = viewModel.favoriteEventListState.value!!.filter { it.fav_data != null }
+        if(favEvents.isNotEmpty()){
+            LazyColumn {
+                items(favEvents) { event ->
+                    EventItem(event = event)
+                }
+            }
+        }
+        else {
+            NoEventBox()
+        }
+    }
+
+    @Composable
+    private fun EventList() {
+        FilterBarComposable(viewModel).FilterBar()
+        SideEffect {
+            viewModel.getEvents()
+        }
+        if(viewModel.eventListState.value!!.size == 0) {
+            NoEventBox()
+        }else {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2)
+            ) {
+                items(viewModel.eventListState.value!!) { event ->
+                    EventItem(event)
+                }
             }
         }
     }
 
     @Composable
-    private fun EventGrid(events: MutableList<EventModel>) {
-        if(events.size == 0) {
-            Box(modifier = Modifier.height(200.dp).fillMaxWidth()){
-                Column{
-                    Text(
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                            .padding(top = 90.dp),
-                        text = "No event found.."
-                    )
-                }
-            }
-        }else {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2)
-            ) {
-                items(events) { event ->
-                    EventItem(event)
-                }
+    private fun NoEventBox()
+    {
+        Box(modifier = Modifier
+            .height(200.dp)
+            .fillMaxWidth()){
+            Column{
+                Text(
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(top = 90.dp),
+                    text = "No event found.."
+                )
             }
         }
     }
