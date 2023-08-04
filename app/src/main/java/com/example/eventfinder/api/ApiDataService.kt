@@ -2,6 +2,7 @@ package com.example.eventfinder.api
 import com.example.eventfinder.model.EventCategoryModel
 import com.example.eventfinder.model.EventFavoriteModel
 import com.example.eventfinder.model.EventModel
+import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -14,12 +15,13 @@ interface ApiDataService {
         @Query("categoryId") categoryId: Int?,
         @Query("event_date__gte") event_date__gte: String?,
         @Query("event_date") event_date__exact: String?,
+        @Query("userdeviceid") userdeviceid: String?,
     ): Response<MutableList<EventModel>>
 
-    @GET("/event/{eventId}/event_detail_fav/{userdeviceId}")
-    suspend fun getEventFav(
-        @Path("eventId") eventId: Int,
-        @Path("userdeviceId") userdeviceId: String,
+    @GET("/event/{pk}/")
+    suspend fun getEventDetail(
+        @Path("pk") eventId: Int,
+        @Query("userdeviceid") userdeviceid: String?,
     ): Response<EventModel>
 
 
@@ -37,6 +39,11 @@ interface ApiDataService {
     @DELETE("/eventfavorite/{favId}/")
     suspend fun  deleteFavorite(
         @Path("favId") favId: Int) : Response<Unit>
+
+
+    //This method for unit test
+    @GET("/event")
+    fun getEventsForTest(@Query("userdeviceid") userdeviceid: String?): Call<List<EventModel>>
 
 
 }

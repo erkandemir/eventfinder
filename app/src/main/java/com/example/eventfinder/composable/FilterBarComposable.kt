@@ -3,6 +3,7 @@ package com.example.eventfinder.composable
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -69,21 +70,21 @@ class FilterBarComposable(private val viewModel: MainViewModel) {
 
         //Dropdown
         Row( modifier = Modifier
-            .fillMaxWidth()
-            .background(color = MaterialTheme.colorScheme.secondary)) {
+            .fillMaxWidth()) {
             ExposedDropdownMenuBox(
                 expanded = expanded,
                 onExpandedChange = { expanded = !expanded },
-                modifier = Modifier.background(color = MaterialTheme.colorScheme.secondary)
             ) {
-                TextField(
+                OutlinedTextField(
                     value = viewModel.selectedEventCategoryModel.value!!.name,
                     onValueChange = {
                     },
                     readOnly = true,
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                     textStyle = TextStyle.Default.copy(fontSize = 12.sp),
-                    colors = TextFieldDefaults.colors(
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.background,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.background,
                         unfocusedContainerColor = MaterialTheme.colorScheme.background,
                         focusedContainerColor = MaterialTheme.colorScheme.background,
                         focusedTextColor = MaterialTheme.colorScheme.primary,

@@ -39,6 +39,8 @@ class MainViewModel() : ViewModel() {
     var eventCategoryListState : MutableState<MutableList<EventCategoryModel>> = mutableStateOf(mutableListOf())
     //event list state
     var eventListState : MutableState<MutableList<EventModel>?> = mutableStateOf(mutableListOf())
+    //event detail state
+    var eventDetailState : MutableState<EventModel?> = mutableStateOf(null)
     //favoriteEventList
     var favoriteEventListState : MutableState<MutableList<EventModel>?> = mutableStateOf(mutableListOf())
     //
@@ -60,15 +62,30 @@ class MainViewModel() : ViewModel() {
     }
 
     //fetch event by category
-    fun getEvents(getAll : Boolean = false)
+    fun getEvents()
     {
         viewModelScope.launch {
             val response = EventRepository.getEvents(selectedEventCategoryModel.value!!.id,
-                    selectedDate.value!!, dateSelected.value!!)
+                    selectedDate.value!!, dateSelected.value!!, deviceId)
 
             if (response != null) {
                 if(response.isSuccessful)
                     eventListState.value = response.body()!!
+            }
+        }
+    }
+
+    fun getEventDetail(eventId: Int)
+    {
+        viewModelScope.launch {
+            val response = EventRepository.getEventDetail(eventId, deviceId)
+
+            if (response != null) {
+                if(response.isSuccessful) {
+                    eventDetailState.value = response.body()!!
+                    favButtonState.value = (eventDetailState.value!!.fav_data != null)
+                }
+
             }
         }
     }
@@ -123,15 +140,10 @@ class MainViewModel() : ViewModel() {
     }
 
 
-    fun changeFavButton(value: Boolean)
-    {
-        favButtonState.value = value
-    }
-
     fun getFavoriteEventList()
     {
         viewModelScope.launch {
-            val response : Response<MutableList<EventModel>>? = EventRepository.getAllEvents()
+            val response : Response<MutableList<EventModel>>? = EventRepository.getAllEvents(deviceId)
             if (response != null) {
                 if(response.isSuccessful)
                     favoriteEventListState.value = response.body()!!

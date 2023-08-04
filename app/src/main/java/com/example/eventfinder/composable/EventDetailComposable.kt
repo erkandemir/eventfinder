@@ -17,6 +17,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.eventfinder.navigation.Screen
 import com.example.eventfinder.viewmodel.MainViewModel
 import java.text.DateFormat
 import java.text.SimpleDateFormat
@@ -25,12 +26,9 @@ class EventDetailComposable(private val navController : NavController, private v
     @Composable
     fun EventDetailScreen(eventId: Int?, fromFav:Boolean = false)
     {
-        val event = if(viewModel.favoriteEventListState.value!!.size > 0)
-            viewModel.favoriteEventListState.value!!.firstOrNull() { it.id == eventId}
-        else
-            viewModel.eventListState.value!!.firstOrNull() { it.id == eventId}
-
-        viewModel.changeFavButton(event!!.fav_data != null)
+        SideEffect {
+            viewModel.getEventDetail(eventId!!)
+        }
 
         Column(modifier = Modifier
             .fillMaxHeight()
@@ -44,7 +42,7 @@ class EventDetailComposable(private val navController : NavController, private v
                     .fillMaxWidth()
             ) {
                 AsyncImage(
-                    model = event?.imageUrl,
+                    model = viewModel.eventDetailState.value?.imageUrl,
                     contentDescription = "",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxWidth()
@@ -65,18 +63,18 @@ class EventDetailComposable(private val navController : NavController, private v
             {
                 Column(verticalArrangement = Arrangement.SpaceBetween) {
 
-                    Text("Title: " + event?.title)
-                    Text("Date: " + event?.event_date.toString())
+                    Text("Title: " + viewModel.eventDetailState.value?.title)
+                    Text("Date: " + viewModel.eventDetailState.value?.event_date.toString())
                     Spacer(modifier = Modifier
                         .fillMaxWidth()
                         .height(15.dp))
-                    Text("Description: " + event?.description)
+                    Text("Description: " + viewModel.eventDetailState.value?.description)
                     Spacer(modifier = Modifier
                         .fillMaxWidth()
                         .height(20.dp))
                     Text(
                         modifier = Modifier.align(Alignment.CenterHorizontally),
-                        text = "Ticket Price: €" + event?.ticketPrice
+                        text = "Ticket Price: €" + viewModel.eventDetailState.value?.ticketPrice
                     )
                 }
 
@@ -95,15 +93,17 @@ class EventDetailComposable(private val navController : NavController, private v
             )
             {
                 //Atandence button
-                Button(onClick = { /*TODO*/ },
+                Button(onClick = {
+                     navController.navigate(Screen.navMap.route)
+                },
                 modifier = Modifier.background(MaterialTheme.colorScheme.onSecondary)) {
-                    Text(text = "Attend to Event")
+                    Text(text = "Show in Map")
                 }
 
                 //Favorite button
                 Button(
                     onClick = {
-                        viewModel.setFavorite(event!!.id)
+                        viewModel.setFavorite(viewModel.eventDetailState.value!!.id)
                     },
                     modifier = Modifier.background(MaterialTheme.colorScheme.onSecondary),
                     enabled = true

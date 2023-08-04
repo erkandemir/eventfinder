@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
@@ -32,11 +33,13 @@ import com.example.eventfinder.model.EventModel
 import com.example.eventfinder.composable.*
 import com.example.eventfinder.model.EventCategoryModel
 import com.example.eventfinder.navigation.BottomNavigationComposable
+import com.example.eventfinder.composable.TopBarComposable
 import com.example.eventfinder.navigation.Screen
 import com.example.eventfinder.ui.theme.EventFinderTheme
 import com.example.eventfinder.viewmodel.MainViewModel
 import com.google.android.gms.location.*
 import androidx.lifecycle.viewmodel.compose.viewModel
+
 
 
 class MainActivity : ComponentActivity() {
@@ -66,7 +69,8 @@ class MainActivity : ComponentActivity() {
             checkAndRequestLocationPermissions(applicationContext, permissions, launcherMultiplePermissions)
 
             EventFinderTheme {
-                navScreen()
+                //Main Screen
+                mainScreen()
             }
         }
     }
@@ -99,23 +103,21 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun navScreen()
+    fun mainScreen()
     {
         var navController: NavHostController = rememberNavController()
         Scaffold(
             topBar = {
-                Row() {
-                    Column{
-                        Text("Event Finder")
-                        Spacer(modifier = Modifier
-                            .background(color = MaterialTheme.colorScheme.primary)
-                            .height(2.dp)
-                            .fillMaxWidth())
-                    }
-
-                }
-            } ,
+                CenterAlignedTopAppBar(
+                    title = { Text(text = "Event Finder")},
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.background,
+                        titleContentColor = MaterialTheme.colorScheme.primary
+                    )
+                )
+            },
             bottomBar = {
                 BottomNavigationComposable(navController = navController)
             }

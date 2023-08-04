@@ -88,7 +88,11 @@ class EventListComposable(private val favoriteMode : Boolean,
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
-                    Row{
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
+                            .padding(top=3.dp),
+                        horizontalArrangement = Arrangement.Center
+                    ){
                         Column(
                             modifier = Modifier.fillMaxHeight()
                         ) {
