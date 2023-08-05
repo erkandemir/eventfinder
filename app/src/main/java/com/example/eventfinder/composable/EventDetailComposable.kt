@@ -3,6 +3,8 @@ package com.example.eventfinder.composable
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -21,6 +23,7 @@ import com.example.eventfinder.navigation.Screen
 import com.example.eventfinder.viewmodel.MainViewModel
 import java.text.DateFormat
 import java.text.SimpleDateFormat
+import java.util.*
 
 class EventDetailComposable(private val navController : NavController, private val viewModel : MainViewModel){
     @Composable
@@ -32,14 +35,16 @@ class EventDetailComposable(private val navController : NavController, private v
 
         Column(modifier = Modifier
             .fillMaxHeight()
-            .fillMaxWidth(),
-            verticalArrangement = Arrangement.SpaceBetween
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.SpaceBetween,
         )
         {
             Row(
                 modifier = Modifier
-                    .fillMaxHeight(0.3f)
                     .fillMaxWidth()
+                    .height(200.dp)
+
             ) {
                 AsyncImage(
                     model = viewModel.eventDetailState.value?.imageUrl,
@@ -58,16 +63,18 @@ class EventDetailComposable(private val navController : NavController, private v
 
             Row(modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.5f)
+                .fillMaxHeight()
                 .background(color = MaterialTheme.colorScheme.onPrimary))
             {
                 Column(verticalArrangement = Arrangement.SpaceBetween) {
 
                     Text("Title: " + viewModel.eventDetailState.value?.title)
-                    Text("Date: " + viewModel.eventDetailState.value?.event_date.toString())
+
+                    Text("Event Date: " + viewModel.eventDetailState.value?.formatted_eventdate)
                     Spacer(modifier = Modifier
                         .fillMaxWidth()
                         .height(15.dp))
+                    Text("Place Name: " + viewModel.eventDetailState.value?.place_name)
                     Text("Description: " + viewModel.eventDetailState.value?.description)
                     Spacer(modifier = Modifier
                         .fillMaxWidth()
@@ -89,7 +96,7 @@ class EventDetailComposable(private val navController : NavController, private v
             
             Row(modifier = Modifier
                 .align(alignment = Alignment.CenterHorizontally)
-                .fillMaxHeight(0.2f)
+                .fillMaxHeight()
             )
             {
                 //Atandence button

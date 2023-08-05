@@ -83,6 +83,8 @@ class MainViewModel() : ViewModel() {
             if (response != null) {
                 if(response.isSuccessful) {
                     eventDetailState.value = response.body()!!
+                    val format = SimpleDateFormat("dd-MMMM-yyyy")
+                    eventDetailState.value!!.formatted_eventdate =  format.format(Date(eventDetailState.value?.event_date!!.time))
                     favButtonState.value = (eventDetailState.value!!.fav_data != null)
                 }
 

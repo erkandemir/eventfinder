@@ -16,5 +16,6 @@ data class EventModel(
     val ticketPrice : Double,
     val address : String,
     var favId : Int,
-    var fav_data: EventFavoriteModel?
+    var fav_data: EventFavoriteModel?,
+    var formatted_eventdate : String?
 )

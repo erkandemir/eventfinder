@@ -2,29 +2,31 @@ package com.example.eventfinder.composable
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import com.example.eventfinder.model.EventModel
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.eventfinder.model.EventModel
 import com.example.eventfinder.viewmodel.MainViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeFormatterBuilder
+import java.util.*
 
 
 class EventListComposable(private val favoriteMode : Boolean,
@@ -89,15 +91,19 @@ class EventListComposable(private val favoriteMode : Boolean,
                         )
                     }
                     Row(
-                        modifier = Modifier.fillMaxWidth()
-                            .padding(top=3.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 3.dp),
                         horizontalArrangement = Arrangement.Center
                     ){
                         Column(
                             modifier = Modifier.fillMaxHeight()
                         ) {
                             Text(event.title)
-                            Text(event.place_name)
+                            val date = Date(event.event_date.time)
+                            val format = SimpleDateFormat("dd-MMMM-yyyy")
+                            Text(format.format(date))
+
                         }
                     }
                 }

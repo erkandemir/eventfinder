@@ -110,13 +110,7 @@ class MainActivity : ComponentActivity() {
         var navController: NavHostController = rememberNavController()
         Scaffold(
             topBar = {
-                CenterAlignedTopAppBar(
-                    title = { Text(text = "Event Finder")},
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.background,
-                        titleContentColor = MaterialTheme.colorScheme.primary
-                    )
-                )
+                TopBarComposable().TopBar(R.drawable.event_finder_icon_luncher)
             },
             bottomBar = {
                 BottomNavigationComposable(navController = navController)
